@@ -118,9 +118,10 @@ They update automatically whenever anything changes (derive totals with `useMemo
 
 One **stacked bar chart** using Chart.js.
 
-The x-axis has four bars:
+The chart shows **only the macros** — Calories must not appear in it.
 
-* Calories
+The x-axis has three bars:
+
 * Protein
 * Carbs
 * Fat
