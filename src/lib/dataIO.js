@@ -104,11 +104,12 @@ function stringify(value) {
 }
 
 /**
- * Validates and copies a { ingredients, meals, plan } document.
+ * Validates and copies a { ingredients, meals, plan, goals } document.
  * Collects every problem (paths like "plan[1]: unknown ingredientId") and
- * rejects the whole file if anything is wrong.
+ * rejects the whole document if anything is wrong. Used for import files,
+ * localStorage snapshots, and server-side PUT validation.
  */
-function validateState(doc) {
+export function validateState(doc) {
   const errors = [];
   for (const key of ["ingredients", "meals", "plan"]) {
     if (!Array.isArray(doc[key])) errors.push(`${key}: must be an array.`);

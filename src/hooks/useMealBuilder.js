@@ -195,6 +195,10 @@ export function reducer(state, action) {
 }
 
 function loadInitialState() {
+  if (typeof window === "undefined") {
+    // Server render/prerender: no storage access; the client hydrates it.
+    return EMPTY_STATE;
+  }
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return EMPTY_STATE;
