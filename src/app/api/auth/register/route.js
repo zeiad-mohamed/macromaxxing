@@ -1,7 +1,13 @@
 // POST /api/auth/register { email, password } → creates the account and a
 // session. Returns 409 when the email is already registered.
 import { NextResponse } from "next/server";
-import { registrationError, createUser, findUserByEmail } from "@/lib/server/users.js";
+import {
+  registrationError,
+  createUser,
+  findUserByEmail,
+  userLimit,
+  userCount,
+} from "@/lib/server/users.js";
 import { createSession, pruneExpiredSessions, sessionResponse } from "@/lib/server/auth.js";
 
 export async function POST(request) {
@@ -19,6 +25,18 @@ export async function POST(request) {
 
   if (findUserByEmail(body.email) !== null) {
     return sessionResponse({ error: "That email is already registered." }, { status: 409 });
+  }
+
+  // Registration capacity cap (MMX_MAX_USERS). Kept as one synchronous run
+  // together with createUser below, so concurrent registrations cannot race
+  // past the count in a single server process. An already-registered email
+  // gives the 409 above instead, pointing that person to sign in.
+  const limit = userLimit();
+  if (limit !== null && userCount() >= limit) {
+    return sessionResponse(
+      { error: "This instance is not accepting new users right now." },
+      { status: 403 },
+    );
   }
 
   const { user, conflict } = createUser(body.email, body.password);

@@ -6,6 +6,25 @@ import { MIN_PASSWORD_LENGTH } from "../shared/password.js";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+/**
+ * Maximum number of accounts this instance will register, from the
+ * MMX_MAX_USERS env variable. Unset, empty, or not a non-negative integer
+ * means "no limit". Accounts that already exist can always sign in — the
+ * cap applies to registration only.
+ */
+export function userLimit() {
+  const raw = process.env.MMX_MAX_USERS;
+  if (typeof raw !== "string" || raw.trim() === "") return null;
+  const parsed = Number(raw.trim());
+  if (!Number.isInteger(parsed) || parsed < 0) return null;
+  return parsed;
+}
+
+export function userCount() {
+  const row = getDb().prepare("SELECT COUNT(*) AS n FROM users").get();
+  return row.n;
+}
+
 export function normalizeEmail(email) {
   return typeof email === "string" ? email.trim().toLowerCase() : "";
 }
