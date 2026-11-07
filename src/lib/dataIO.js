@@ -8,6 +8,9 @@ import {
   macroSumError,
   gramsError,
   servingsError,
+  goalCaloriesError,
+  goalMacroError,
+  goalDefaults,
 } from "./validation.js";
 
 export const APP_KEY = "macromaxxing";
@@ -34,10 +37,11 @@ export function serializeStored(state) {
     ingredients: state.ingredients,
     meals: state.meals,
     plan: state.plan,
+    goals: state.goals,
   });
 }
 
-/** Export payload: app, version, exportedAt, then the three collections. */
+/** Export payload: app, version, exportedAt, then the collections. */
 export function serializeExport(state, exportedAtISO) {
   return JSON.stringify({
     app: APP_KEY,
@@ -46,6 +50,7 @@ export function serializeExport(state, exportedAtISO) {
     ingredients: state.ingredients,
     meals: state.meals,
     plan: state.plan,
+    goals: state.goals,
   });
 }
 
@@ -115,9 +120,28 @@ function validateState(doc) {
   const meals = validateMeals(doc.meals, ingredientIds, errors);
   const mealIds = new Set(meals.map((m) => m.id));
   const plan = validatePlan(doc.plan, mealIds, ingredientIds, errors);
+  const goals = validateGoals(doc, errors);
 
   if (errors.length > 0) return fail(errors);
-  return { ok: true, state: { ingredients, meals, plan } };
+  return { ok: true, state: { ingredients, meals, plan, goals } };
+}
+
+/**
+ * Daily goals. Missing key entirely = older file, so defaults are used
+ * (0 = "not set"). A present but invalid goal rejects the whole file.
+ */
+function validateGoals(doc, errors) {
+  const raw = doc.goals;
+  if (raw === undefined || raw === null) return { ...goalDefaults };
+  if (!isPlainObject(raw)) {
+    errors.push("goals: must be an object.");
+    return { ...goalDefaults };
+  }
+  const calories = field(raw.calories ?? goalDefaults.calories, goalCaloriesError, "goals.calories", errors);
+  const protein = field(raw.protein ?? goalDefaults.protein, goalMacroError, "goals.protein", errors);
+  const carbs = field(raw.carbs ?? goalDefaults.carbs, goalMacroError, "goals.carbs", errors);
+  const fat = field(raw.fat ?? goalDefaults.fat, goalMacroError, "goals.fat", errors);
+  return { calories, protein, carbs, fat };
 }
 
 function validateIngredients(list, errors) {

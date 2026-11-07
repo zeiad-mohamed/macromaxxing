@@ -96,6 +96,7 @@ export default function App() {
               ingredients={state.ingredients}
               meals={state.meals}
               plan={state.plan}
+              goals={state.goals}
               actions={actions}
               onGoToTab={setActiveTab}
             />

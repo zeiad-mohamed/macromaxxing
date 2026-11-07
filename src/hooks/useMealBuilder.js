@@ -2,10 +2,16 @@
 
 import { useMemo, useReducer, useEffect } from "react";
 import { parseStoredState, serializeStored } from "../lib/dataIO.js";
+import { goalDefaults } from "../lib/validation.js";
 
 const STORAGE_KEY = "macromaxxing:v1";
 
-const EMPTY_STATE = { ingredients: [], meals: [], plan: [] };
+const EMPTY_STATE = {
+  ingredients: [],
+  meals: [],
+  plan: [],
+  goals: { ...goalDefaults },
+};
 
 // Returns undefined for values that are not finite numbers, so bad patches
 // cannot corrupt state (components validate before dispatching anyway).
@@ -164,12 +170,22 @@ export function reducer(state, action) {
     case "plan/delete":
       return { ...state, plan: state.plan.filter((entry) => entry.id !== action.id) };
 
+    case "goal/update": {
+      const goals = { ...state.goals };
+      for (const key of ["calories", "protein", "carbs", "fat"]) {
+        const value = finite(action.patch?.[key]);
+        if (value !== undefined) goals[key] = value;
+      }
+      return { ...state, goals };
+    }
+
     case "state/replace": {
       const next = action.nextState;
       return {
         ingredients: next.ingredients,
         meals: next.meals,
         plan: next.plan,
+        goals: next.goals,
       };
     }
 
@@ -223,6 +239,8 @@ export default function useMealBuilder() {
         dispatch({ type: "plan/add", entry: { kind: "ingredient", ingredientId, grams: 0 } }),
       updatePlanEntry: (id, patch) => dispatch({ type: "plan/update", id, patch }),
       deletePlanEntry: (id) => dispatch({ type: "plan/delete", id }),
+
+      updateGoals: (patch) => dispatch({ type: "goal/update", patch }),
 
       replaceAll: (nextState) => dispatch({ type: "state/replace", nextState }),
     }),

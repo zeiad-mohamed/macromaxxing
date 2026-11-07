@@ -101,6 +101,19 @@ export function formatNumber(value) {
   return (Number.isFinite(value) ? value : 0).toFixed(1);
 }
 
+/**
+ * Progress of a total toward its daily goal. A goal of 0 (or less, or a
+ * non-finite goal) means "not set" and yields null so callers can hide the
+ * goal display entirely. `percent` may exceed 100; `over` flags a total
+ * beyond its goal so callers can highlight it.
+ */
+export function goalProgress(total, goal) {
+  const limit = numOrZero(goal);
+  if (limit <= 0) return null;
+  const value = numOrZero(total);
+  return { percent: (value / limit) * 100, over: value > limit };
+}
+
 function numOrZero(value) {
   return Number.isFinite(value) ? value : 0;
 }

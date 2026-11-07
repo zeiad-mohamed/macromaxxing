@@ -14,6 +14,14 @@ export const GRAMS_MAX = 10000;
 export const SERVINGS_MIN = 0;
 export const SERVINGS_MAX = 100;
 
+// Daily goals are per day, so their ranges are far wider than the per-100g
+// ingredient ranges above.
+export const GOAL_CALORIES_MIN = 0;
+export const GOAL_CALORIES_MAX = 10000;
+
+export const GOAL_MACRO_MIN = 0;
+export const GOAL_MACRO_MAX = 1000;
+
 // Sum comparison tolerance for floating point noise (e.g. 0.1 + 0.2).
 const SUM_EPSILON = 1e-9;
 
@@ -104,6 +112,14 @@ export function servingsError(value) {
   return numberValueErrorOrText(value, SERVINGS_MIN, SERVINGS_MAX, "servings");
 }
 
+export function goalCaloriesError(value) {
+  return numberValueErrorOrText(value, GOAL_CALORIES_MIN, GOAL_CALORIES_MAX, "kcal");
+}
+
+export function goalMacroError(value) {
+  return numberValueErrorOrText(value, GOAL_MACRO_MIN, GOAL_MACRO_MAX, "g");
+}
+
 function numberValueErrorOrText(value, min, max, unit) {
   if (typeof value === "string") {
     const err = numberTextError(value, min, max, unit);
@@ -131,3 +147,7 @@ export const newMealItemDefaults = { grams: 0 };
 export const newPlanMealDefaults = { servings: 1 };
 export const newPlanIngredientDefaults = { grams: 0 };
 export const newPlanEntryDefaults = { enabled: true };
+
+// Daily goal defaults. A 0 goal means "not set" for that field, so the UI can
+// hide the goal display until the user enters a target.
+export const goalDefaults = { calories: 0, protein: 0, carbs: 0, fat: 0 };

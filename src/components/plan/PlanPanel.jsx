@@ -12,7 +12,7 @@ import {
 } from "../../lib/nutrition.js";
 import { primaryButton } from "../ui/inputClasses.js";
 
-export default function PlanPanel({ ingredients, meals, plan, actions, onGoToTab }) {
+export default function PlanPanel({ ingredients, meals, plan, goals, actions, onGoToTab }) {
   const mealsById = useMemo(() => indexById(meals), [meals]);
   const ingredientsById = useMemo(() => indexById(ingredients), [ingredients]);
 
@@ -71,8 +71,12 @@ export default function PlanPanel({ ingredients, meals, plan, actions, onGoToTab
           actions={actions}
         />
       )}
-      <SummaryCards totals={totals} />
-      <NutritionChart entries={chartEntries} />
+      <SummaryCards
+        totals={totals}
+        goals={goals}
+        onGoalCommit={(field, value) => actions.updateGoals({ [field]: value })}
+      />
+      <NutritionChart entries={chartEntries} goals={goals} />
     </section>
   );
 }
