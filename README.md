@@ -47,6 +47,9 @@ npm run lint
 
 - SQLite via Node's built-in `node:sqlite` — no native dependencies. Defaults to `data/macro-maxxing.db` (gitignored).
 - Override the location with `MMX_DB_PATH=/path/to/db.sqlite`.
+- Close the instance to new accounts entirely with `MMX_DISABLE_REGISTRATION=1` (truth-y values: 1/true/yes/on — `/register` then shows a notice instead of the form, and the register API answers 403).
+- Instance settings are deploy-time configuration, not hotline flags: they take effect on a server restart in dev, and on a rebuild + restart in production (prerendered pages bake the branch they render). Route handlers re-check the live process environment per request, so enforcement is never staler than the pages.
+- Both instance knobs come from the environment; a gitignored local `.env` file at the repo root is a convenient place to set them.
 - Cap the number of registrable accounts with `MMX_MAX_USERS=100` (unset or invalid = no limit; existing accounts can always sign in — the cap applies to registration only, extra registrations get a 403).
 - To move to a hosted database (Postgres, Turso…), swap the driver in `src/lib/server/db.js`; only that module touches storage.
 - Session cookie: `mm_session`, httpOnly, `SameSite=Lax`, `Secure` when serving over HTTPS. Sessions expire after 30 days and are pruned opportunistically.

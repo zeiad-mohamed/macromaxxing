@@ -30,8 +30,12 @@ CREATE INDEX IF NOT EXISTS sessions_user_id_idx ON sessions(user_id);
 
 function dbPath() {
   const configured = process.env.MMX_DB_PATH;
+  // The path is runtime-configurable on purpose (MMX_DB_PATH is documented
+  // behavior), so this resolve stays dynamic. turbopackIgnore tells the
+  // build-time tracer not to analyze it into the deployment graph — the
+  // call itself is a plain path string for node:fs at runtime.
   const file = configured
-    ? path.resolve(process.cwd(), configured)
+    ? path.resolve(/* turbopackIgnore: true */ process.cwd(), configured)
     : path.join(process.cwd(), "data", "macro-maxxing.db");
   fs.mkdirSync(path.dirname(file), { recursive: true });
   return file;

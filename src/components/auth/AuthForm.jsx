@@ -20,7 +20,7 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const inputClass =
   "w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100";
 
-export default function AuthForm({ mode }) {
+export default function AuthForm({ mode, switchLink = true }) {
   const isRegister = mode === "register";
   const title = isRegister ? "Create your account" : "Sign in to MacroMaxxing";
   const endpoint = isRegister ? "/api/auth/register" : "/api/auth/login";
@@ -124,12 +124,14 @@ export default function AuthForm({ mode }) {
             {isRegister ? "Create account" : "Sign in"}
           </button>
         </form>
-        <p className="mt-4 text-center text-sm text-gray-500">
-          {switchPrompt}{" "}
-          <Link href={isRegister ? "/login" : "/register"} className={secondaryButton}>
-            {switchLabel}
-          </Link>
-        </p>
+        {switchLink && (
+          <p className="mt-4 text-center text-sm text-gray-500">
+            {switchPrompt}{" "}
+            <Link href={isRegister ? "/login" : "/register"} className={secondaryButton}>
+              {switchLabel}
+            </Link>
+          </p>
+        )}
       </div>
     </section>
   );
