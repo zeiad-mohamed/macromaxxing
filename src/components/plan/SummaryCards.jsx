@@ -24,18 +24,18 @@ const GOAL_FIELDS = [
     goalAria: "Protein goal",
   },
   {
-    key: "carbs",
-    label: "Total Carbs",
-    unit: "g",
-    max: GOAL_MACRO_MAX,
-    goalAria: "Carb goal",
-  },
-  {
     key: "fat",
     label: "Total Fat",
     unit: "g",
     max: GOAL_MACRO_MAX,
     goalAria: "Fat goal",
+  },
+  {
+    key: "carbs",
+    label: "Total Carbs",
+    unit: "g",
+    max: GOAL_MACRO_MAX,
+    goalAria: "Carb goal",
   },
 ];
 

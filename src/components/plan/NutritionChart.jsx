@@ -69,7 +69,7 @@ export default function NutritionChart({ entries, goals }) {
   const hasData = entries.length > 0 && entries.some((e) => e.values.some((v) => v > 1e-9));
 
   const macroGoals = useMemo(
-    () => (goals ? [goalValue(goals.protein), goalValue(goals.carbs), goalValue(goals.fat)] : [0, 0, 0]),
+    () => (goals ? [goalValue(goals.protein), goalValue(goals.fat), goalValue(goals.carbs)] : [0, 0, 0]),
     [goals],
   );
   const goalMax = Math.max(...macroGoals, 0);
@@ -78,15 +78,15 @@ export default function NutritionChart({ entries, goals }) {
     ? [
         goalValue(goals.calories) > 0 && `${formatNumber(goals.calories)} kcal`,
         macroGoals[0] > 0 && `${formatNumber(macroGoals[0])} g protein`,
-        macroGoals[1] > 0 && `${formatNumber(macroGoals[1])} g carbs`,
-        macroGoals[2] > 0 && `${formatNumber(macroGoals[2])} g fat`,
+        macroGoals[1] > 0 && `${formatNumber(macroGoals[1])} g fat`,
+        macroGoals[2] > 0 && `${formatNumber(macroGoals[2])} g carbs`,
       ].filter(Boolean)
     : [];
   const hasGoals = goalCaptionParts.length > 0;
 
   const data = useMemo(
     () => ({
-      labels: ["Protein", "Carbs", "Fat"],
+      labels: ["Protein", "Fat", "Carbs"],
       datasets: entries.map((entry, index) => ({
         label: entry.label,
         data: entry.values,
@@ -182,7 +182,7 @@ export default function NutritionChart({ entries, goals }) {
         <canvas
           ref={canvasRef}
           role="img"
-          aria-label={`Stacked bar chart showing protein, carbs, and fat grams for each enabled plan entry${
+          aria-label={`Stacked bar chart showing grams of protein, fat, and carbs for each enabled plan entry${
             hasGoals ? ". Dashed marks inside a category show that macro's daily goal." : ""
           }`}
         />

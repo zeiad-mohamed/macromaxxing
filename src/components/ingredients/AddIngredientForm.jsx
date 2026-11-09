@@ -7,8 +7,8 @@ import { card, primaryButton } from "../ui/inputClasses.js";
 const numberFields = [
   { key: "caloriesPer100g", label: "Calories / 100g", min: 0, max: 900, unit: "kcal" },
   { key: "proteinPer100g", label: "Protein / 100g", min: 0, max: 100, unit: "g" },
-  { key: "carbsPer100g", label: "Carbs / 100g", min: 0, max: 100, unit: "g" },
   { key: "fatPer100g", label: "Fat / 100g", min: 0, max: 100, unit: "g" },
+  { key: "carbsPer100g", label: "Carbs / 100g", min: 0, max: 100, unit: "g" },
 ];
 
 export default function AddIngredientForm({ ingredients, actions }) {
@@ -89,7 +89,7 @@ function blankNumberErrors() {
   return {
     caloriesPer100g: null,
     proteinPer100g: null,
-    carbsPer100g: null,
     fatPer100g: null,
+    carbsPer100g: null,
   };
 }

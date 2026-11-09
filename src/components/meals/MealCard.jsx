@@ -122,8 +122,8 @@ export default function MealCard({ meal, ingredients, meals, plan, actions }) {
       <div className="grid grid-cols-4 gap-2 border-t border-gray-100 bg-gray-50 px-3 py-2 text-center text-xs">
         <Total label="kcal" value={formatNumber(totals.calories)} strong />
         <Total label="P g" value={formatNumber(totals.protein)} />
-        <Total label="C g" value={formatNumber(totals.carbs)} />
         <Total label="F g" value={formatNumber(totals.fat)} />
+        <Total label="C g" value={formatNumber(totals.carbs)} />
       </div>
 
       <form

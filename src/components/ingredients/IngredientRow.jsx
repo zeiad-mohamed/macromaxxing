@@ -11,7 +11,7 @@ import {
 } from "../../lib/validation.js";
 import { smallDangerButton, smallSecondaryButton } from "../ui/inputClasses.js";
 
-const MACRO_KEYS = ["proteinPer100g", "carbsPer100g", "fatPer100g"];
+const MACRO_KEYS = ["proteinPer100g", "fatPer100g", "carbsPer100g"];
 
 export default function IngredientRow({ ingredient, ingredients, meals, plan, actions }) {
   const otherNames = useMemo(

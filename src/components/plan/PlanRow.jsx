@@ -78,8 +78,8 @@ export default function PlanRow({ entry, mealsById, ingredientsById, actions }) 
       </td>
       <td className="p-2 tabular-nums">{formatNumber(totals.calories)}</td>
       <td className="p-2 tabular-nums">{formatNumber(totals.protein)}</td>
-      <td className="p-2 tabular-nums">{formatNumber(totals.carbs)}</td>
       <td className="p-2 tabular-nums">{formatNumber(totals.fat)}</td>
+      <td className="p-2 tabular-nums">{formatNumber(totals.carbs)}</td>
       <td className="p-2 text-right">
         <button
           type="button"

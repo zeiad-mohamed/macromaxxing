@@ -4,8 +4,8 @@ const COLUMNS = [
   "Name",
   "Calories / 100g",
   "Protein / 100g",
-  "Carbs / 100g",
   "Fat / 100g",
+  "Carbs / 100g",
   "Used in",
   "",
 ];

@@ -30,7 +30,7 @@ export default function PlanPanel({ ingredients, meals, plan, goals, actions, on
           return {
             id: entry.id,
             label: planEntryLabel(entry, mealsById, ingredientsById),
-            values: [total.protein, total.carbs, total.fat],
+            values: [total.protein, total.fat, total.carbs],
           };
         }),
     [plan, mealsById, ingredientsById],

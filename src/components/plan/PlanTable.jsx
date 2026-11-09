@@ -7,8 +7,8 @@ const COLUMNS = [
   "Amount",
   "Calories (kcal)",
   "Protein (g)",
-  "Carbs (g)",
   "Fat (g)",
+  "Carbs (g)",
   "",
 ];
 

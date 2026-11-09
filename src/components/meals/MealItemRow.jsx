@@ -49,8 +49,8 @@ export default function MealItemRow({ meal, itemIndex, item, ingredients, ingred
       />
       <NutritionChip label="kcal" value={formatNumber(nutrition.calories)} />
       <NutritionChip label="P g" value={formatNumber(nutrition.protein)} />
-      <NutritionChip label="C g" value={formatNumber(nutrition.carbs)} />
       <NutritionChip label="F g" value={formatNumber(nutrition.fat)} />
+      <NutritionChip label="C g" value={formatNumber(nutrition.carbs)} />
       <button
         type="button"
         className={smallDangerButton}
