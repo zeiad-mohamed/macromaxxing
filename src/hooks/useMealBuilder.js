@@ -2,7 +2,7 @@
 
 import { useMemo, useReducer, useEffect } from "react";
 import { parseStoredState, serializeStored } from "../lib/dataIO.js";
-import { goalDefaults } from "../lib/validation.js";
+import { goalDefaults, NAME_MAX_LENGTH } from "../lib/validation.js";
 
 const STORAGE_KEY = "macromaxxing:v1";
 
@@ -49,6 +49,28 @@ function makeIngredient(data = {}) {
 
 function makeMeal(name) {
   return { id: crypto.randomUUID(), name, items: [] };
+}
+
+// Name for a duplicate: keeps any "(copy N)" suffix out of the base, then
+// bumps the counter until the name is unique (case-insensitive, like
+// nameError) and within NAME_MAX_LENGTH. Dish "Foo" -> "Foo (copy)";
+// duplicating "Foo (copy)" -> "Foo (copy 2)".
+function uniqueCopyName(name, allNames) {
+  const taken = new Set(
+    allNames.map((other) => (typeof other === "string" ? other.trim().toLowerCase() : "")),
+  );
+  const match = /^(.*) \(copy(?: \d+)?\)$/.exec(typeof name === "string" ? name.trim() : "");
+  const base = match ? match[1].trim() : (typeof name === "string" ? name.trim() : "");
+  for (let count = 1; count <= 999; count += 1) {
+    const suffix = count === 1 ? " (copy)" : ` (copy ${count})`;
+    const usableBase =
+      base.length + suffix.length > NAME_MAX_LENGTH
+        ? base.slice(0, Math.max(0, NAME_MAX_LENGTH - suffix.length))
+        : base;
+    const candidate = `${usableBase}${suffix}`;
+    if (!taken.has(candidate.trim().toLowerCase())) return candidate.trim();
+  }
+  return `${base.slice(0, NAME_MAX_LENGTH)} ${Date.now()}`;
 }
 
 function makePlanEntry(entry) {
@@ -101,8 +123,32 @@ export function reducer(state, action) {
       };
     }
 
+    case "ingredient/duplicate": {
+      const source = state.ingredients.find((ingredient) => ingredient.id === action.id);
+      if (!source) return state;
+      const copy = makeIngredient({
+        ...source,
+        name: uniqueCopyName(source.name, state.ingredients.map((ingredient) => ingredient.name)),
+      });
+      const ingredients = [...state.ingredients];
+      ingredients.splice(ingredients.indexOf(source) + 1, 0, copy); // Next to the original.
+      return { ...state, ingredients };
+    }
+
     case "meal/add":
       return { ...state, meals: [...state.meals, makeMeal(action.name)] };
+
+    case "meal/duplicate": {
+      const source = state.meals.find((meal) => meal.id === action.id);
+      if (!source) return state;
+      const copy = {
+        ...makeMeal(uniqueCopyName(source.name, state.meals.map((meal) => meal.name))),
+        items: source.items.map((item) => ({ ...item })), // { ingredientId, grams }
+      };
+      const meals = [...state.meals];
+      meals.splice(meals.indexOf(source) + 1, 0, copy); // Next to the original.
+      return { ...state, meals };
+    }
 
     case "meal/update":
       return {
@@ -225,10 +271,12 @@ export default function useMealBuilder() {
       addIngredient: (data) => dispatch({ type: "ingredient/add", data }),
       updateIngredient: (id, patch) => dispatch({ type: "ingredient/update", id, patch }),
       deleteIngredient: (id) => dispatch({ type: "ingredient/delete", id }),
+      duplicateIngredient: (id) => dispatch({ type: "ingredient/duplicate", id }),
 
       addMeal: (name) => dispatch({ type: "meal/add", name }),
       updateMeal: (id, patch) => dispatch({ type: "meal/update", id, patch }),
       deleteMeal: (id) => dispatch({ type: "meal/delete", id }),
+      duplicateMeal: (id) => dispatch({ type: "meal/duplicate", id }),
 
       addMealItem: (mealId, ingredientId, grams = 0) =>
         dispatch({ type: "meal/item/add", mealId, ingredientId, grams }),

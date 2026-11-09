@@ -9,7 +9,7 @@ import {
   MACRO_MIN,
   MACRO_MAX,
 } from "../../lib/validation.js";
-import { smallDangerButton } from "../ui/inputClasses.js";
+import { smallDangerButton, smallSecondaryButton } from "../ui/inputClasses.js";
 
 const MACRO_KEYS = ["proteinPer100g", "carbsPer100g", "fatPer100g"];
 
@@ -89,14 +89,24 @@ export default function IngredientRow({ ingredient, ingredients, meals, plan, ac
         {usageText(usage)}
       </td>
       <td className="p-2 text-right">
-        <button
-          type="button"
-          className={smallDangerButton}
-          onClick={handleDelete}
-          aria-label={`Delete ingredient ${ingredient.name}`}
-        >
-          Delete
-        </button>
+        <div className="flex justify-end gap-2">
+          <button
+            type="button"
+            className={smallSecondaryButton}
+            onClick={() => actions.duplicateIngredient(ingredient.id)}
+            aria-label={`Duplicate ingredient ${ingredient.name}`}
+          >
+            Duplicate
+          </button>
+          <button
+            type="button"
+            className={smallDangerButton}
+            onClick={handleDelete}
+            aria-label={`Delete ingredient ${ingredient.name}`}
+          >
+            Delete
+          </button>
+        </div>
       </td>
     </tr>
   );

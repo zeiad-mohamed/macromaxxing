@@ -13,6 +13,7 @@ import {
   selectClass,
   primaryButton,
   smallDangerButton,
+  smallSecondaryButton,
 } from "../ui/inputClasses.js";
 
 export default function MealCard({ meal, ingredients, meals, plan, actions }) {
@@ -78,6 +79,14 @@ export default function MealCard({ meal, ingredients, meals, plan, actions }) {
           <span aria-hidden="true" className="text-gray-400">
             {showItems ? "▾" : "▸"}
           </span>
+        </button>
+        <button
+          type="button"
+          className={smallSecondaryButton}
+          onClick={() => actions.duplicateMeal(meal.id)}
+          aria-label={`Duplicate meal ${meal.name}`}
+        >
+          Duplicate
         </button>
         <button
           type="button"
