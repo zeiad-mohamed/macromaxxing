@@ -33,6 +33,10 @@ export const smallDangerButton =
 export const smallSecondaryButton =
   "inline-flex items-center justify-center rounded-md px-2 py-1 text-xs font-semibold text-gray-600 transition hover:bg-gray-100 hover:text-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500";
 
+/** Accordion toggle: counts items, chevron flips with open state. */
+export const accordionButton =
+  "inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-gray-600 transition hover:bg-gray-100 hover:text-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600";
+
 /** Segmented control (Meal | Ingredient, tabs): active option is the accent. */
 export function toggleGroupButton(active) {
   return `rounded-md px-3 py-1.5 text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600 ${

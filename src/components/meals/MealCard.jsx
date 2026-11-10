@@ -10,6 +10,7 @@ import {
 } from "../../lib/nutrition.js";
 import { nameError } from "../../lib/validation.js";
 import {
+  accordionButton,
   card,
   selectClass,
   primaryButton,
@@ -176,10 +177,6 @@ export default function MealCard({ meal, ingredients, meals, plans, actions }) {
     </article>
   );
 }
-
-// Accordion toggle: counts items, chevron flips with open state.
-const accordionButton =
-  "inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-gray-600 transition hover:bg-gray-100 hover:text-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600";
 
 function Total({ label, value, strong = false }) {
   return (
