@@ -94,6 +94,12 @@ export default function PlanPanel({ plans, ingredients, meals, goals, actions, o
         }}
       />
       {activePlan && <PlanHeader plan={activePlan} plans={plans} actions={actions} />}
+      <SummaryCards
+        totals={totals}
+        goals={goals}
+        onGoalCommit={(field, value) => actions.updateGoals({ [field]: value })}
+      />
+      <NutritionChart entries={chartEntries} goals={goals} />
       {activePlan && activePlan.groups.length > 0 ? (
         activePlan.groups.map((group) => (
           <PlanGroup
@@ -114,12 +120,6 @@ export default function PlanPanel({ plans, ingredients, meals, goals, actions, o
         />
       )}
       {activePlan && <AddGroupForm plan={activePlan} actions={actions} />}
-      <SummaryCards
-        totals={totals}
-        goals={goals}
-        onGoalCommit={(field, value) => actions.updateGoals({ [field]: value })}
-      />
-      <NutritionChart entries={chartEntries} goals={goals} />
     </section>
   );
 }
