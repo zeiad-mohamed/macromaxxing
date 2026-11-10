@@ -12,11 +12,13 @@ const COLUMNS = [
   "",
 ];
 
-export default function PlanTable({ plan, mealsById, ingredientsById, actions }) {
+export default function PlanTable({ entries, groupName, mealsById, ingredientsById, actions }) {
   return (
     <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
       <table className="w-full min-w-[860px] border-collapse text-sm">
-        <caption className="sr-only">Meal plan entries with calculated nutrition</caption>
+        <caption className="sr-only">
+          Nutrition entries for {groupName} with calculated macros
+        </caption>
         <thead>
           <tr className="text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
             {COLUMNS.map((column, index) => (
@@ -29,7 +31,7 @@ export default function PlanTable({ plan, mealsById, ingredientsById, actions })
           </tr>
         </thead>
         <tbody>
-          {plan.map((entry) => (
+          {entries.map((entry) => (
             <PlanRow
               key={entry.id}
               entry={entry}

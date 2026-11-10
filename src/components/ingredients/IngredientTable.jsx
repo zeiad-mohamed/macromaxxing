@@ -10,7 +10,7 @@ const COLUMNS = [
   "",
 ];
 
-export default function IngredientTable({ ingredients, meals, plan, actions }) {
+export default function IngredientTable({ ingredients, meals, plans, actions }) {
   return (
     <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
       <table className="w-full min-w-[760px] border-collapse text-sm">
@@ -33,7 +33,7 @@ export default function IngredientTable({ ingredients, meals, plan, actions }) {
               ingredient={ingredient}
               ingredients={ingredients}
               meals={meals}
-              plan={plan}
+              plans={plans}
               actions={actions}
             />
           ))}

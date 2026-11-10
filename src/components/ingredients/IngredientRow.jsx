@@ -10,10 +10,11 @@ import {
   MACRO_MAX,
 } from "../../lib/validation.js";
 import { smallDangerButton, smallSecondaryButton } from "../ui/inputClasses.js";
+import { allPlanEntries } from "../../lib/nutrition.js";
 
 const MACRO_KEYS = ["proteinPer100g", "fatPer100g", "carbsPer100g"];
 
-export default function IngredientRow({ ingredient, ingredients, meals, plan, actions }) {
+export default function IngredientRow({ ingredient, ingredients, meals, plans, actions }) {
   const otherNames = useMemo(
     () => ingredients.filter((i) => i.id !== ingredient.id).map((i) => i.name),
     [ingredients, ingredient.id],
@@ -23,11 +24,11 @@ export default function IngredientRow({ ingredient, ingredients, meals, plan, ac
     const mealCount = meals.filter((meal) =>
       meal.items.some((item) => item.ingredientId === ingredient.id),
     ).length;
-    const planCount = plan.filter(
+    const planCount = allPlanEntries(plans).filter(
       (entry) => entry.kind === "ingredient" && entry.ingredientId === ingredient.id,
     ).length;
     return { mealCount, planCount };
-  }, [meals, plan, ingredient.id]);
+  }, [meals, plans, ingredient.id]);
 
   // Keeps each macro within the "sum ≤ 100g" rule while editing (see macroErrorFor).
 

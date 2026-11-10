@@ -22,7 +22,7 @@ const TABS = [
 const SIGNED_OUT_STATE = {
   ingredients: [],
   meals: [],
-  plan: [],
+  plans: [],
   goals: { ...goalDefaults },
 };
 
@@ -138,7 +138,7 @@ export default function App() {
             <IngredientsPanel
               ingredients={state.ingredients}
               meals={state.meals}
-              plan={state.plan}
+              plans={state.plans}
               actions={actions}
             />
           )}
@@ -146,16 +146,16 @@ export default function App() {
             <MealsPanel
               ingredients={state.ingredients}
               meals={state.meals}
-              plan={state.plan}
+              plans={state.plans}
               actions={actions}
               onGoToTab={setActiveTab}
             />
           )}
           {activeTab === "plan" && (
             <PlanPanel
+              plans={state.plans}
               ingredients={state.ingredients}
               meals={state.meals}
-              plan={state.plan}
               goals={state.goals}
               actions={actions}
               onGoToTab={setActiveTab}

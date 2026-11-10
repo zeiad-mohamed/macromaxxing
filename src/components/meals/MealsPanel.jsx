@@ -3,7 +3,7 @@ import MealCard from "./MealCard.jsx";
 import EmptyState from "../ui/EmptyState.jsx";
 import { primaryButton } from "../ui/inputClasses.js";
 
-export default function MealsPanel({ ingredients, meals, plan, actions, onGoToTab }) {
+export default function MealsPanel({ ingredients, meals, plans, actions, onGoToTab }) {
   return (
     <section className="space-y-4">
       <AddMealForm meals={meals} actions={actions} />
@@ -33,7 +33,7 @@ export default function MealsPanel({ ingredients, meals, plan, actions, onGoToTa
               meal={meal}
               ingredients={ingredients}
               meals={meals}
-              plan={plan}
+              plans={plans}
               actions={actions}
             />
           ))}

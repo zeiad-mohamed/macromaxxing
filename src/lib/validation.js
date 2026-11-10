@@ -148,6 +148,26 @@ export const newPlanMealDefaults = { servings: 1 };
 export const newPlanIngredientDefaults = { grams: 0 };
 export const newPlanEntryDefaults = { enabled: true };
 
+// Groups a brand-new plan starts with (Breakfast/Lunch/Dinner/Snacks). Any
+// group can be renamed or deleted; deleting all groups leaves an empty plan
+// the add-group form can fill again.
+export const defaultPlanGroupNames = ["Breakfast", "Lunch", "Dinner", "Snacks"];
+
+/**
+ * First-unused "Plan N" default for the quick-add button. Skips names that
+ * are already taken (case-insensitive, same rule as nameError).
+ */
+export function nextPlanName(plans) {
+  const taken = new Set(
+    plans.map((plan) => (typeof plan?.name === "string" ? plan.name.trim().toLowerCase() : "")),
+  );
+  for (let n = plans.length; n <= 999; n += 1) {
+    const candidate = `Plan ${n + 1}`;
+    if (!taken.has(candidate.toLowerCase())) return candidate;
+  }
+  return `Plan ${Date.now()}`;
+}
+
 // Daily goal defaults. A 0 goal means "not set" for that field, so the UI can
 // hide the goal display until the user enters a target.
 export const goalDefaults = { calories: 0, protein: 0, carbs: 0, fat: 0 };

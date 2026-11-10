@@ -1,15 +1,19 @@
 // useReducer store + localStorage persistence + all actions.
 
 import { useMemo, useReducer, useEffect } from "react";
-import { parseStoredState, serializeStored } from "../lib/dataIO.js";
-import { goalDefaults, NAME_MAX_LENGTH } from "../lib/validation.js";
+import { parseStoredState, serializeStored, validateState } from "../lib/dataIO.js";
+import {
+  defaultPlanGroupNames,
+  goalDefaults,
+  NAME_MAX_LENGTH,
+} from "../lib/validation.js";
 
 const STORAGE_KEY = "macromaxxing:v1";
 
 const EMPTY_STATE = {
   ingredients: [],
   meals: [],
-  plan: [],
+  plans: [],
   goals: { ...goalDefaults },
 };
 
@@ -73,8 +77,21 @@ function uniqueCopyName(name, allNames) {
   return `${base.slice(0, NAME_MAX_LENGTH)} ${Date.now()}`;
 }
 
+function makeGroup(name, id = crypto.randomUUID()) {
+  return { id, name, entries: [] };
+}
+
+/** A brand-new plan: named, seeded with the default meal groups of a day. */
+function makePlan(name, id = crypto.randomUUID()) {
+  return {
+    id,
+    name,
+    groups: defaultPlanGroupNames.map((groupName) => makeGroup(groupName)),
+  };
+}
+
 function makePlanEntry(entry) {
-  const id = crypto.randomUUID();
+  const id = entry.id ?? crypto.randomUUID();
   if (entry.kind === "meal") {
     return {
       id,
@@ -91,6 +108,16 @@ function makePlanEntry(entry) {
     grams: finite(entry.grams) ?? 0,
     enabled: true,
   };
+}
+
+/**
+ * Applies `mapFn(entries, group)` to every group's entries in every plan.
+ */
+function mapGroupEntries(plans, mapFn) {
+  return plans.map((plan) => ({
+    ...plan,
+    groups: plan.groups.map((group) => ({ ...group, entries: mapFn(group.entries, group) })),
+  }));
 }
 
 export function reducer(state, action) {
@@ -111,14 +138,17 @@ export function reducer(state, action) {
     case "ingredient/delete": {
       const { id } = action;
       return {
+        ...state,
         ingredients: state.ingredients.filter((ingredient) => ingredient.id !== id),
         meals: state.meals.map((meal) =>
           meal.items.some((item) => item.ingredientId === id)
             ? { ...meal, items: meal.items.filter((item) => item.ingredientId !== id) }
             : meal,
         ),
-        plan: state.plan.filter(
-          (entry) => !(entry.kind === "ingredient" && entry.ingredientId === id),
+        plans: mapGroupEntries(state.plans, (entries) =>
+          entries.filter(
+            (entry) => !(entry.kind === "ingredient" && entry.ingredientId === id),
+          ),
         ),
       };
     }
@@ -163,7 +193,9 @@ export function reducer(state, action) {
       return {
         ...state,
         meals: state.meals.filter((meal) => meal.id !== id),
-        plan: state.plan.filter((entry) => !(entry.kind === "meal" && entry.mealId === id)),
+        plans: mapGroupEntries(state.plans, (entries) =>
+          entries.filter((entry) => !(entry.kind === "meal" && entry.mealId === id)),
+        ),
       };
     }
 
@@ -203,18 +235,97 @@ export function reducer(state, action) {
       };
 
     case "plan/add":
-      return { ...state, plan: [...state.plan, makePlanEntry(action.entry)] };
+      return { ...state, plans: [...state.plans, makePlan(action.name, action.id)] };
 
     case "plan/update":
       return {
         ...state,
-        plan: state.plan.map((entry) =>
-          entry.id === action.id ? { ...entry, ...sanitizePatch(action.patch) } : entry,
+        plans: state.plans.map((plan) =>
+          plan.id === action.id ? { ...plan, ...sanitizePatch(action.patch) } : plan,
         ),
       };
 
     case "plan/delete":
-      return { ...state, plan: state.plan.filter((entry) => entry.id !== action.id) };
+      return { ...state, plans: state.plans.filter((plan) => plan.id !== action.id) };
+
+    case "plan/duplicate": {
+      const source = state.plans.find((plan) => plan.id === action.id);
+      if (!source) return state;
+      const copy = {
+        id: crypto.randomUUID(),
+        name: uniqueCopyName(source.name, state.plans.map((plan) => plan.name)),
+        groups: source.groups.map((group) => ({
+          ...makeGroup(group.name),
+          entries: group.entries.map((entry) => ({ ...entry, id: crypto.randomUUID() })),
+        })),
+      };
+      const plans = [...state.plans];
+      plans.splice(plans.indexOf(source) + 1, 0, copy); // Next to the original.
+      return { ...state, plans };
+    }
+
+    case "plan/group/add":
+      return {
+        ...state,
+        plans: state.plans.map((plan) =>
+          plan.id === action.planId
+            ? { ...plan, groups: [...plan.groups, makeGroup(action.name, action.id)] }
+            : plan,
+        ),
+      };
+
+    case "plan/group/update":
+      return {
+        ...state,
+        plans: state.plans.map((plan) => ({
+          ...plan,
+          groups: plan.groups.map((group) =>
+            group.id === action.groupId
+              ? { ...group, ...sanitizePatch(action.patch) }
+              : group,
+          ),
+        })),
+      };
+
+    case "plan/group/delete":
+      return {
+        ...state,
+        plans: state.plans.map((plan) => ({
+          ...plan,
+          groups: plan.groups.filter((group) => group.id !== action.groupId),
+        })),
+      };
+
+    case "plan/entry/add":
+      return {
+        ...state,
+        plans: state.plans.map((plan) => ({
+          ...plan,
+          groups: plan.groups.map((group) =>
+            group.id === action.groupId
+              ? { ...group, entries: [...group.entries, makePlanEntry(action.entry)] }
+              : group,
+          ),
+        })),
+      };
+
+    case "plan/entry/update":
+      return {
+        ...state,
+        plans: mapGroupEntries(state.plans, (entries) =>
+          entries.map((entry) =>
+            entry.id === action.entryId ? { ...entry, ...sanitizePatch(action.patch) } : entry,
+          ),
+        ),
+      };
+
+    case "plan/entry/delete":
+      return {
+        ...state,
+        plans: mapGroupEntries(state.plans, (entries) =>
+          entries.filter((entry) => entry.id !== action.entryId),
+        ),
+      };
 
     case "goal/update": {
       const goals = { ...state.goals };
@@ -230,7 +341,7 @@ export function reducer(state, action) {
       return {
         ingredients: next.ingredients,
         meals: next.meals,
-        plan: next.plan,
+        plans: next.plans,
         goals: next.goals,
       };
     }
@@ -285,16 +396,39 @@ export default function useMealBuilder() {
       deleteMealItem: (mealId, itemIndex) =>
         dispatch({ type: "meal/item/delete", mealId, itemIndex }),
 
-      addPlanMeal: (mealId) =>
-        dispatch({ type: "plan/add", entry: { kind: "meal", mealId, servings: 1 } }),
-      addPlanIngredient: (ingredientId) =>
-        dispatch({ type: "plan/add", entry: { kind: "ingredient", ingredientId, grams: 0 } }),
-      updatePlanEntry: (id, patch) => dispatch({ type: "plan/update", id, patch }),
-      deletePlanEntry: (id) => dispatch({ type: "plan/delete", id }),
+      addPlan: (name, id) => dispatch({ type: "plan/add", name, id }),
+      updatePlan: (id, patch) => dispatch({ type: "plan/update", id, patch }),
+      deletePlan: (id) => dispatch({ type: "plan/delete", id }),
+      duplicatePlan: (id) => dispatch({ type: "plan/duplicate", id }),
+
+      addPlanGroup: (planId, name, presetId) =>
+        dispatch({ type: "plan/group/add", planId, name, id: presetId }),
+      updatePlanGroup: (groupId, patch) => dispatch({ type: "plan/group/update", groupId, patch }),
+      deletePlanGroup: (groupId) => dispatch({ type: "plan/group/delete", groupId }),
+
+      addPlanMeal: (groupId, mealId, presetId) =>
+        dispatch({
+          type: "plan/entry/add",
+          groupId,
+          entry: { kind: "meal", mealId, servings: 1, id: presetId },
+        }),
+      addPlanIngredient: (groupId, ingredientId, presetId) =>
+        dispatch({
+          type: "plan/entry/add",
+          groupId,
+          entry: { kind: "ingredient", ingredientId, grams: 0, id: presetId },
+        }),
+      updatePlanEntry: (id, patch) => dispatch({ type: "plan/entry/update", entryId: id, patch }),
+      deletePlanEntry: (id) => dispatch({ type: "plan/entry/delete", entryId: id }),
 
       updateGoals: (patch) => dispatch({ type: "goal/update", patch }),
 
-      replaceAll: (nextState) => dispatch({ type: "state/replace", nextState }),
+      // Runs incoming states through validateState so legacy flat-plan
+      // documents (old server rows, old files) are upgraded before they land.
+      replaceAll: (nextState) => {
+        const result = validateState(nextState);
+        if (result.ok) dispatch({ type: "state/replace", nextState: result.state });
+      },
     }),
     [],
   );

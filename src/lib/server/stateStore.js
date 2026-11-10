@@ -65,7 +65,7 @@ export function emptyState() {
   return {
     ingredients: [],
     meals: [],
-    plan: [],
+    plans: [],
     goals: { ...goalDefaults },
   };
 }

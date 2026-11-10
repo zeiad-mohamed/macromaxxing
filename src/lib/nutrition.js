@@ -63,12 +63,27 @@ export function planEntryTotal(entry, mealsById, ingredientsById) {
   return zeroNutrition();
 }
 
-/** Sum of the totals of every enabled plan entry. */
-export function grandTotals(plan, mealsById, ingredientsById) {
-  return (Array.isArray(plan) ? plan : []).reduce(
+/**
+ * Total nutrition of every enabled entry in the list — used for grand
+ * totals and per-group subtotals alike.
+ */
+export function entryTotals(entries, mealsById, ingredientsById) {
+  return (Array.isArray(entries) ? entries : []).reduce(
     (sum, entry) => (entry?.enabled ? addNutrition(sum, planEntryTotal(entry, mealsById, ingredientsById)) : sum),
     zeroNutrition(),
   );
+}
+
+/** Entries of one plan, in group order. Defensive on missing groups. */
+export function planEntries(plan) {
+  return (Array.isArray(plan?.groups) ? plan.groups : []).flatMap(
+    (group) => (Array.isArray(group?.entries) ? group.entries : []),
+  );
+}
+
+/** Entries across every plan — for usage counts and cross-plan questions. */
+export function allPlanEntries(plans) {
+  return (Array.isArray(plans) ? plans : []).flatMap((plan) => planEntries(plan));
 }
 
 /** Display name of a plan entry, defensive when references are missing. */

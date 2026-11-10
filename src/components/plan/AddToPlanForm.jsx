@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { primaryButton, card, selectClass, toggleGroupButton } from "../ui/inputClasses.js";
+import { primaryButton, selectClass, toggleGroupButton } from "../ui/inputClasses.js";
 
 const KINDS = [
   { id: "meal", label: "Meal", emptyHint: "No meals yet — create one in the Meals tab." },
@@ -10,7 +10,7 @@ const KINDS = [
   },
 ];
 
-export default function AddToPlanForm({ meals, ingredients, actions }) {
+export default function AddToPlanForm({ group, meals, ingredients, actions }) {
   const [kind, setKind] = useState("meal");
   const [selectedId, setSelectedId] = useState("");
   const toggleRefs = useRef({});
@@ -18,6 +18,7 @@ export default function AddToPlanForm({ meals, ingredients, actions }) {
   const options = kind === "meal" ? meals : ingredients;
   const emptyHint = KINDS.find((k) => k.id === kind).emptyHint;
   const canAdd = options.length > 0 && selectedId !== "";
+  const selectId = `add-to-plan-${group.id}-select`;
 
   function selectKind(nextKind, focusIt = false) {
     setKind(nextKind);
@@ -38,18 +39,17 @@ export default function AddToPlanForm({ meals, ingredients, actions }) {
   function handleAdd(event) {
     event.preventDefault();
     if (!canAdd) return;
-    if (kind === "meal") actions.addPlanMeal(selectedId);
-    else actions.addPlanIngredient(selectedId);
+    if (kind === "meal") actions.addPlanMeal(group.id, selectedId);
+    else actions.addPlanIngredient(group.id, selectedId);
     setSelectedId("");
   }
 
   return (
-    <form onSubmit={handleAdd} className={`${card} p-4`} noValidate>
-      <h2 className="mb-3 text-sm font-semibold text-gray-900">Add to plan</h2>
+    <form onSubmit={handleAdd} noValidate>
       <div className="flex flex-wrap items-end gap-3">
         <div
           role="radiogroup"
-          aria-label="Plan entry type"
+          aria-label={`Add to ${group.name}: entry type`}
           onKeyDown={handleToggleKeys}
           className="flex rounded-lg bg-gray-100 p-1"
         >
@@ -71,11 +71,11 @@ export default function AddToPlanForm({ meals, ingredients, actions }) {
           ))}
         </div>
         <div className="min-w-48 flex-1">
-          <label htmlFor="add-to-plan-select" className="sr-only">
-            {kind === "meal" ? "Meal to add" : "Ingredient to add"}
+          <label htmlFor={selectId} className="sr-only">
+            {kind === "meal" ? `Meal to add to ${group.name}` : `Ingredient to add to ${group.name}`}
           </label>
           <select
-            id="add-to-plan-select"
+            id={selectId}
             value={selectedId}
             onChange={(event) => setSelectedId(event.target.value)}
             className={selectClass}
@@ -96,11 +96,15 @@ export default function AddToPlanForm({ meals, ingredients, actions }) {
           </select>
           {options.length === 0 && <p className="mt-1 text-xs text-gray-500">{emptyHint}</p>}
         </div>
-        <button type="submit" className={primaryButton} disabled={!canAdd}>
-          Add to plan
+        <button
+          type="submit"
+          className={primaryButton}
+          disabled={!canAdd}
+          aria-label={`Add to ${group.name}`}
+        >
+          Add
         </button>
       </div>
     </form>
   );
 }
-

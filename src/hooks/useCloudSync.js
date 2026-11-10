@@ -4,7 +4,7 @@
 // localStorage still persists inside useMealBuilder, so the app keeps
 // working offline; the server copy is authoritative across devices.
 import { useEffect, useRef, useState } from "react";
-import { serializeStored } from "@/lib/dataIO.js";
+import { serializeStored, validateState } from "@/lib/dataIO.js";
 
 const SAVE_DEBOUNCE_MS = 700;
 
@@ -26,8 +26,17 @@ export default function useCloudSync({ active, user, state, actions, onUnauthori
       .then((response) => (response.ok ? response.json() : null))
       .then((data) => {
         if (cancelled || !data?.state) return;
-        ref.current.lastSynced = serializeStored(data.state); // Set before replaceAll's effect runs.
-        actions.replaceAll(data.state);
+        // The server row can be a legacy flat-plan document; validateState
+        // upgrades it, and the normalized copy is what "last synced" means.
+        const parsed = validateState(data.state);
+        if (!parsed.ok) {
+          // The server can never hold invalid state, but if it somehow does:
+          // keep working from the local copy and never sync that raw doc.
+          ref.current.loaded = true;
+          return;
+        }
+        ref.current.lastSynced = serializeStored(parsed.state); // Set before replaceAll's effect runs.
+        actions.replaceAll(parsed.state);
         ref.current.loaded = true;
       })
       .catch(() => {

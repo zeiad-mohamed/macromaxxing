@@ -2,7 +2,7 @@
 
 **Stack your plate. Max your macros.**
 
-A single-page meal builder that lives in Next.js: define ingredients (per-100g nutrition), compose them into meals, stack meals and ingredients onto a daily plan, and watch the calorie/macro totals against your daily goals — with a stacked Chart.js breakdown of every plan entry.
+A single-page meal builder that lives in Next.js: define ingredients (per-100g nutrition), compose them into meals, and stack meals and ingredients onto multiple named plans — one per day, divided into groups like Breakfast, Lunch and Dinner — with per-day totals, daily goals and a stacked Chart.js breakdown of every plan entry.
 
 Each user gets an account, and their plan is stored server-side so it follows them across devices.
 
@@ -10,12 +10,15 @@ Each user gets an account, and their plan is stored server-side so it follows th
 
 - **Ingredients** — name + calories/macros per 100g, live per-field validation (invalid values are never kept), duplicate-name protection
 - **Meals** — ingredients grouped with gram amounts; collapsible ingredient lists; per-meal totals
-- **Plan** — the same meal or ingredient can be stacked multiple times with servings/grams; entries can be toggled
-- **Daily goals** — calories + each macro target on the summary cards with progress bars; dashed goal marks in the chart
-- **Nutrition chart** — one Chart.js dataset per enabled plan entry (protein / carbs / fat)
+- **Plans** — multiple named plans (one per day works well: Monday…Sunday), each divided into groups like Breakfast, Lunch, Dinner and Snacks
+- **Plan groups** — every plan starts with four named groups; add, rename and delete groups freely, with per-group subtotals
+- **Plan entries** — the same meal or ingredient can land in any group, more than once, with servings/grams and an include toggle
+- **Plan tools** — duplicate a whole plan (fresh entry ids) to roll yesterday forward; renaming, deleting and switching plans from the plan bar
+- **Daily goals** — calories + each macro target on the summary cards, computed for the selected plan, with progress bars; dashed goal marks in the chart
+- **Nutrition chart** — one Chart.js dataset per enabled plan entry (protein / carbs / fat) of the selected plan
 - **Accounts** — register and sign in with email + password; sessions are httpOnly cookies backed by a revocable server-side session table
 - **Cloud sync** — plan state is validated server-side with the same rules as JSON import and stored per user; localStorage stays as an offline cache so the app keeps working without a connection
-- **Export / import** — the original JSON snapshot export is still a local feature and doubles as a data backup
+- **Export / import** — the JSON snapshot export covers all plans, groups and entries; legacy flat-plan files (storage version 1) import and upgrade automatically
 
 ## Getting started
 
@@ -38,8 +41,8 @@ npm run lint
 
 ## How data flows
 
-1. All plan edits happen instantly in a local reducer (`src/hooks/useMealBuilder.js`) and are mirrored to `localStorage`.
-2. When signed in, `src/hooks/useCloudSync.js` loads the account's saved state on sign-in (`GET /api/state`) and pushes changes with a debounced `PUT /api/state`.
+1. All plan edits happen instantly in a local reducer (`src/hooks/useMealBuilder.js`) and are mirrored to `localStorage`. The stored snapshot is storage **version 2**: `{ ingredients, meals, plans: [{ name, groups: [{ name, entries }] }], goals }`. Older version-1 snapshots (one flat plan array) are upgraded into a single "My plan" on load.
+2. When signed in, `src/hooks/useCloudSync.js` loads the account's saved state on sign-in (`GET /api/state`) and pushes changes with a debounced `PUT /api/state`. Server rows written by an older version are upgraded the same way on load.
 3. Every incoming payload is validated server-side by the exact same validators the client uses for JSON imports (`src/lib/dataIO.js`), so the database can never hold an invalid state graph. Conflicts are last-write-wins.
 4. Signing out clears the device copy.
 

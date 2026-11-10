@@ -6,6 +6,7 @@ import {
   indexById,
   mealTotals,
   formatNumber,
+  allPlanEntries,
 } from "../../lib/nutrition.js";
 import { nameError } from "../../lib/validation.js";
 import {
@@ -16,7 +17,7 @@ import {
   smallSecondaryButton,
 } from "../ui/inputClasses.js";
 
-export default function MealCard({ meal, ingredients, meals, plan, actions }) {
+export default function MealCard({ meal, ingredients, meals, plans, actions }) {
   const [showItems, setShowItems] = useState(false); // Accordion: hidden by default.
   const [newIngredientId, setNewIngredientId] = useState("");
   const [newGrams, setNewGrams] = useState(0);
@@ -26,9 +27,13 @@ export default function MealCard({ meal, ingredients, meals, plan, actions }) {
 
   const ingredientsById = useMemo(() => indexById(ingredients), [ingredients]);
   const totals = useMemo(() => mealTotals(meal, ingredientsById), [meal, ingredientsById]);
-  const planEntryCount = plan.filter(
-    (entry) => entry.kind === "meal" && entry.mealId === meal.id,
-  ).length;
+  const planEntryCount = useMemo(
+    () =>
+      allPlanEntries(plans).filter(
+        (entry) => entry.kind === "meal" && entry.mealId === meal.id,
+      ).length,
+    [plans, meal.id],
+  );
 
   const otherNames = useMemo(
     () => meals.filter((other) => other.id !== meal.id).map((other) => other.name),

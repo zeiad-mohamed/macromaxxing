@@ -26,6 +26,7 @@ export default function TextInput({
   placeholder,
   mode = "md",
   className = "",
+  autoFocus,
 }) {
   const [draft, setDraft] = useState(typeof value === "string" ? value : "");
   const [touched, setTouched] = useState(false);
@@ -89,6 +90,7 @@ export default function TextInput({
         }}
         onBlur={handleBlur}
         placeholder={placeholder}
+        autoFocus={autoFocus}
         aria-label={label ? undefined : ariaLabel}
         aria-invalid={showError || undefined}
         aria-describedby={showError ? `${id}-error` : undefined}
