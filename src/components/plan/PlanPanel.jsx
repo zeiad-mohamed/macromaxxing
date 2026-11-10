@@ -84,16 +84,18 @@ export default function PlanPanel({ plans, ingredients, meals, goals, actions, o
 
   return (
     <section className="space-y-4">
-      <PlansBar
-        plans={plans}
-        selectedId={activePlan?.id ?? null}
-        onSelect={setActivePlanId}
-        onCreate={(name, id) => {
-          actions.addPlan(name, id);
-          setActivePlanId(id); // Jump straight into the fresh plan.
-        }}
-      />
-      {activePlan && <PlanHeader plan={activePlan} plans={plans} actions={actions} />}
+      <div className="flex flex-wrap items-center gap-2">
+        <PlansBar
+          plans={plans}
+          selectedId={activePlan?.id ?? null}
+          onSelect={setActivePlanId}
+          onCreate={(name, id) => {
+            actions.addPlan(name, id);
+            setActivePlanId(id); // Jump straight into the fresh plan.
+          }}
+        />
+        {activePlan && <PlanHeader plan={activePlan} plans={plans} actions={actions} />}
+      </div>
       <SummaryCards
         totals={totals}
         goals={goals}

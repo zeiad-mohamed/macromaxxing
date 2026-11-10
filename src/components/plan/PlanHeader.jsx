@@ -1,14 +1,14 @@
 import TextInput from "../ui/TextInput.jsx";
 import { nameError } from "../../lib/validation.js";
 import {
-  card,
   smallDangerButton,
   smallSecondaryButton,
 } from "../ui/inputClasses.js";
 
 /**
- * Active plan header: inline rename, plus duplicate (a fast way to roll a
- * day forward) and delete. Both buttons confirm before touching data.
+ * Active plan controls: inline rename, plus duplicate (a fast way to roll a
+ * day forward) and delete. Both buttons confirm before touching data. Rendered
+ * inline next to the plan switcher, not as its own card.
  */
 export default function PlanHeader({ plan, plans, actions }) {
   const otherNames = plans
@@ -31,7 +31,7 @@ export default function PlanHeader({ plan, plans, actions }) {
   }
 
   return (
-    <div className={`${card} flex flex-wrap items-center gap-2 p-3`}>
+    <div className="flex flex-1 flex-wrap items-center gap-2 min-w-64">
       <TextInput
         id={`plan-${plan.id}-name`}
         ariaLabel={`Name of plan ${plan.name}`}
